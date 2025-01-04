@@ -5,210 +5,114 @@ using UnityEngine;
 public class PlayerShit : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float moveSpeed = 5f;
-    public float jumpForce = 10f;
-    public float wallJumpPush = 5f;
+    public float moveSpeed = 5f; // Player's horizontal movement speed
+    public float reducedMoveSpeed = 2.5f; // Reduced speed after a wall jump
+    public float jumpForce = 10f; // Force applied when the player jumps
+    public float wallJumpForce = 10f; // Force applied when the player wall jumps
+    public float wallStickDuration = 0.2f; // Delay before the player can re-stick to the wall
+    public float speedRecoveryTime = 0.5f; // Time to recover original speed after a wall jump
 
-    [Header("References")]
-    public LayerMask groundLayer;
-    public LayerMask leftWallLayer;
-    public LayerMask rightWallLayer;
+    [Header("Layer Masks")]
+    public LayerMask groundLayer; // Layer representing the ground
+    public LayerMask wallLayer; // Layer representing the walls
 
-    private Rigidbody2D rb;
-    private Collider2D playerCollider;
-    private bool isGrounded;
-    private bool isTouchingLeftWall;
-    private bool isTouchingRightWall;
-    private bool canJump = true;
-    private bool isWallClinging = false;
+    private Rigidbody2D rb; // Reference to the Rigidbody2D component
+    private Collider2D playerCollider; // Reference to the player's collider
+
+    private bool isGrounded; // Checks if the player is on the ground
+    private bool isTouchingWall; // Checks if the player is touching a wall
+    private bool isWallClinging; // Checks if the player is clinging to a wall
+    private bool canWallJump; // Determines if the player can wall jump
+
+    private float horizontalInput; // Stores horizontal input from the player
+    private bool isSpeedReduced; // Tracks if the player's speed is reduced
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        playerCollider = GetComponent<Collider2D>();
+        rb = GetComponent<Rigidbody2D>(); // Get the Rigidbody2D component attached to the player
+        playerCollider = GetComponent<Collider2D>(); // Get the Collider2D component attached to the player
     }
 
     private void Update()
     {
-        HandleMovement();
-        CheckGroundAndWalls();
-        HandleJumping();
+        horizontalInput = Input.GetAxis("Horizontal"); // Get horizontal input (A/D or Left/Right arrow keys)
+        HandleMovement(); // Handle player's horizontal movement
+        CheckSurroundings(); // Check if the player is on the ground or touching a wall
+
+        if (Input.GetButtonDown("Jump")) // Check if the jump button (default: Space) is pressed
+        {
+            HandleJumping(); // Handle jumping behavior
+        }
     }
 
     private void HandleMovement()
     {
-        float horizontal = Input.GetAxis("Horizontal");
+        float currentSpeed = isSpeedReduced ? reducedMoveSpeed : moveSpeed; // Use reduced speed if applicable
 
-        if (!isWallClinging)
+        if (isWallClinging)
         {
-            rb.velocity = new Vector2(horizontal * moveSpeed, rb.velocity.y);
+            rb.velocity = new Vector2(rb.velocity.x, 0); // Stop vertical movement while clinging to the wall
         }
         else
         {
-            if ((isTouchingLeftWall && horizontal > 0) || (isTouchingRightWall && horizontal < 0))
-            {
-                rb.velocity = new Vector2(0, 0); // Stick to the wall
-            }
-            else
-            {
-                isWallClinging = false; // Detach if moving away
-            }
+            rb.velocity = new Vector2(horizontalInput * currentSpeed, rb.velocity.y); // Apply horizontal movement
         }
     }
 
-    private void CheckGroundAndWalls()
+    private void CheckSurroundings()
     {
-        isGrounded = IsTouchingLayer(groundLayer);
-        isTouchingLeftWall = IsTouchingLayer(leftWallLayer);
-        isTouchingRightWall = IsTouchingLayer(rightWallLayer);
+        isGrounded = playerCollider.IsTouchingLayers(groundLayer); // Check if the player is touching the ground layer
+        isTouchingWall = playerCollider.IsTouchingLayers(wallLayer); // Check if the player is touching the wall layer
 
         if (isGrounded)
         {
-            canJump = true;
-            isWallClinging = false;
+            isWallClinging = false; // Disable wall clinging when on the ground
+            canWallJump = true; // Reset wall jump ability
         }
-        else if (isTouchingLeftWall || isTouchingRightWall)
+        else if (isTouchingWall && !isGrounded && horizontalInput != 0)
         {
-            if ((isTouchingLeftWall && Input.GetAxis("Horizontal") > 0) ||
-                (isTouchingRightWall && Input.GetAxis("Horizontal") < 0))
-            {
-                isWallClinging = true;
-                canJump = true;
-                rb.velocity = new Vector2(0, 0); // Stick to the wall
-            }
-            else
-            {
-                isWallClinging = false;
-            }
+            isWallClinging = true; // Enable wall clinging when moving toward a wall
         }
         else
         {
-            isWallClinging = false;
+            isWallClinging = false; // Disable wall clinging otherwise
         }
-    }
-
-    private bool IsTouchingLayer(LayerMask layer)
-    {
-        return playerCollider.IsTouchingLayers(layer);
     }
 
     private void HandleJumping()
     {
-        if (Input.GetButtonDown("Jump") && canJump)
-        {
-            if (isWallClinging)
-            {
-                if (isTouchingLeftWall)
-                {
-                    rb.velocity = new Vector2(wallJumpPush, jumpForce);
-                }
-                else if (isTouchingRightWall)
-                {
-                    rb.velocity = new Vector2(-wallJumpPush, jumpForce);
-                }
-            }
-            else if (isGrounded)
-            {
-                rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-            }
-
-            canJump = false;
-        }
-    }
-}
-
-/*{
-    [Header("Movement Settings")]
-    public float moveSpeed = 5f;
-    public float jumpForce = 10f;
-    public float wallJumpPush = 5f;
-
-    [Header("References")]
-    public LayerMask groundLayer;
-    public LayerMask leftWallLayer;
-    public LayerMask rightWallLayer;
-
-    private Rigidbody2D rb;
-    private Collider2D playerCollider;
-    private bool isGrounded;
-    private bool isTouchingLeftWall;
-    private bool isTouchingRightWall;
-    private bool canJump = true;
-    private bool isWallClinging = false;
-
-    private void Start()
-    {
-        rb = GetComponent<Rigidbody2D>();
-        playerCollider = GetComponent<Collider2D>();
-    }
-
-    private void Update()
-    {
-        HandleMovement();
-        CheckGroundAndWalls();
-        HandleJumping();
-    }
-
-    private void HandleMovement()
-    {
-        float horizontal = Input.GetAxis("Horizontal");
-
-        if (!isWallClinging)
-        {
-            rb.velocity = new Vector2(horizontal * moveSpeed, rb.velocity.y);
-        }
-    }
-
-    private void CheckGroundAndWalls()
-    {
-        isGrounded = IsTouchingLayer(groundLayer);
-        isTouchingLeftWall = IsTouchingLayer(leftWallLayer);
-        isTouchingRightWall = IsTouchingLayer(rightWallLayer);
-
         if (isGrounded)
         {
-            canJump = true;
-            isWallClinging = false;
+            Jump(Vector2.up * jumpForce); // Perform a normal upward jump
         }
-        else if (isTouchingLeftWall || isTouchingRightWall)
+        else if (isWallClinging && canWallJump)
         {
-            isWallClinging = true;
-            canJump = true;
-            rb.velocity = new Vector2(0, 0); // Stick to the wall
-        }
-        else
-        {
-            isWallClinging = false;
+            // Determine the direction of the wall jump based on wall side and input direction
+            Vector2 wallJumpDirection = isTouchingWall && horizontalInput > 0 ? new Vector2(-1, 1) : new Vector2(1, 1);
+            Jump(wallJumpDirection.normalized * wallJumpForce); // Perform a wall jump
+            StartCoroutine(ResetWallCling()); // Prevent immediate re-clinging
+            StartCoroutine(ReduceSpeedTemporarily()); // Temporarily reduce speed after a wall jump
         }
     }
 
-    private bool IsTouchingLayer(LayerMask layer)
+    private void Jump(Vector2 force)
     {
-        return playerCollider.IsTouchingLayers(layer);
+        rb.velocity = new Vector2(rb.velocity.x, 0); // Reset vertical velocity before applying the jump
+        rb.AddForce(force, ForceMode2D.Impulse); // Apply the jump force
     }
 
-    private void HandleJumping()
+    private IEnumerator ResetWallCling()
     {
-        if (Input.GetButtonDown("Jump") && canJump)
-        {
-            if (isWallClinging)
-            {
-                if (isTouchingLeftWall)
-                {
-                    rb.velocity = new Vector2(wallJumpPush, jumpForce);
-                }
-                else if (isTouchingRightWall)
-                {
-                    rb.velocity = new Vector2(-wallJumpPush, jumpForce);
-                }
-            }
-            else if (isGrounded)
-            {
-                rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-            }
+        canWallJump = false; // Temporarily disable wall jumping
+        isWallClinging = false; // Temporarily disable wall clinging
+        yield return new WaitForSeconds(wallStickDuration); // Wait for a short duration
+        canWallJump = true; // Re-enable wall jumping
+    }
 
-            canJump = false;
-        }
+    private IEnumerator ReduceSpeedTemporarily()
+    {
+        isSpeedReduced = true; // Reduce the player's speed
+        yield return new WaitForSeconds(speedRecoveryTime); // Wait for the recovery time
+        isSpeedReduced = false; // Restore the player's original speed
     }
 }
-*/
