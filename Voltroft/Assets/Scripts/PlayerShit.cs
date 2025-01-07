@@ -10,14 +10,16 @@ public class PlayerShit : MonoBehaviour
     public float wallJumpLerpTime = 0.2f;
     public float postWallJumpSpeedModifier = 0.5f;
     public float postWallJumpDuration = 0.5f;
+    public float wallSlideSpeed = 2f;
+    public float wallDetachJumpGracePeriod = 0.2f; // Time window to allow jumping after leaving a wall
 
     public LayerMask groundLayer;
     public Transform groundCheck;
-    public float groundCheckRadius = 0.2f;
+    public Vector2 groundCheckSize = new Vector2(0.5f, 0.1f);
 
     public Transform leftWallCheck;
     public Transform rightWallCheck;
-    public float wallCheckDistance = 0.1f;
+    public Vector2 wallCheckSize = new Vector2(0.1f, 1f);
 
     private Rigidbody2D rb;
     private bool isGrounded;
@@ -25,7 +27,10 @@ public class PlayerShit : MonoBehaviour
     private bool isTouchingLeftWall;
     private bool isTouchingRightWall;
     private bool isWallJumping;
+    private bool isWallSliding;
     private float wallJumpTimer;
+    private float wallDetachTimer;
+    private bool recentlyDetachedFromWall;
 
     private void Start()
     {
@@ -35,9 +40,9 @@ public class PlayerShit : MonoBehaviour
     private void Update()
     {
         // Check ground and wall states
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-        isTouchingLeftWall = Physics2D.Raycast(leftWallCheck.position, Vector2.left, wallCheckDistance, groundLayer);
-        isTouchingRightWall = Physics2D.Raycast(rightWallCheck.position, Vector2.right, wallCheckDistance, groundLayer);
+        isGrounded = Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0f, groundLayer);
+        isTouchingLeftWall = Physics2D.OverlapBox(leftWallCheck.position, wallCheckSize, 0f, groundLayer);
+        isTouchingRightWall = Physics2D.OverlapBox(rightWallCheck.position, wallCheckSize, 0f, groundLayer);
 
         // Reset jump ability when grounded
         if (isGrounded && !isWallJumping)
@@ -50,6 +55,25 @@ public class PlayerShit : MonoBehaviour
         if (!isWallJumping)
         {
             rb.velocity = new Vector2(horizontalInput * moveSpeed, rb.velocity.y);
+        }
+
+        // Handle wall sliding
+        isWallSliding = (isTouchingLeftWall || isTouchingRightWall) && !isGrounded && horizontalInput != 0;
+        if (isWallSliding)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, -wallSlideSpeed);
+            recentlyDetachedFromWall = false; // Reset the detach flag when sliding
+        }
+        else if ((isTouchingLeftWall || isTouchingRightWall) && !isWallSliding)
+        {
+            recentlyDetachedFromWall = false;
+        }
+
+        // Handle wall detach timer
+        if (!isTouchingLeftWall && !isTouchingRightWall && !isGrounded && !recentlyDetachedFromWall)
+        {
+            wallDetachTimer = Time.time;
+            recentlyDetachedFromWall = true;
         }
 
         // Handle jump
@@ -68,6 +92,11 @@ public class PlayerShit : MonoBehaviour
                 else if (isTouchingRightWall)
                 {
                     WallJump(Vector2.left);
+                }
+                else if (recentlyDetachedFromWall && Time.time - wallDetachTimer <= wallDetachJumpGracePeriod)
+                {
+                    Jump();
+                    recentlyDetachedFromWall = false; // Consume the grace period jump
                 }
             }
         }
@@ -88,6 +117,7 @@ public class PlayerShit : MonoBehaviour
     private void WallJump(Vector2 direction)
     {
         isWallJumping = true;
+        isWallSliding = false;
         wallJumpTimer = Time.time;
         rb.velocity = Vector2.zero;
         StartCoroutine(PerformWallJump(direction));
@@ -109,16 +139,17 @@ public class PlayerShit : MonoBehaviour
     {
         // Draw ground check gizmo
         Gizmos.color = Color.green;
-        Gizmos.DrawLine(groundCheck.position, groundCheck.position + Vector3.down * groundCheckRadius);
+        Gizmos.DrawWireCube(groundCheck.position, groundCheckSize);
 
         // Draw wall check gizmos
         Gizmos.color = isTouchingLeftWall ? Color.red : Color.blue;
-        Gizmos.DrawLine(leftWallCheck.position, leftWallCheck.position + Vector3.left * wallCheckDistance);
+        Gizmos.DrawWireCube(leftWallCheck.position, wallCheckSize);
 
         Gizmos.color = isTouchingRightWall ? Color.red : Color.blue;
-        Gizmos.DrawLine(rightWallCheck.position, rightWallCheck.position + Vector3.right * wallCheckDistance);
+        Gizmos.DrawWireCube(rightWallCheck.position, wallCheckSize);
     }
 }
+
 
 /*{
     public float moveSpeed = 5f;
@@ -127,14 +158,15 @@ public class PlayerShit : MonoBehaviour
     public float wallJumpLerpTime = 0.2f;
     public float postWallJumpSpeedModifier = 0.5f;
     public float postWallJumpDuration = 0.5f;
+    public float wallSlideSpeed = 2f;
 
     public LayerMask groundLayer;
     public Transform groundCheck;
-    public float groundCheckRadius = 0.2f;
+    public Vector2 groundCheckSize = new Vector2(0.5f, 0.1f);
 
     public Transform leftWallCheck;
     public Transform rightWallCheck;
-    public float wallCheckDistance = 0.1f;
+    public Vector2 wallCheckSize = new Vector2(0.1f, 1f);
 
     private Rigidbody2D rb;
     private bool isGrounded;
@@ -142,6 +174,7 @@ public class PlayerShit : MonoBehaviour
     private bool isTouchingLeftWall;
     private bool isTouchingRightWall;
     private bool isWallJumping;
+    private bool isWallSliding;
     private float wallJumpTimer;
 
     private void Start()
@@ -152,9 +185,9 @@ public class PlayerShit : MonoBehaviour
     private void Update()
     {
         // Check ground and wall states
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-        isTouchingLeftWall = Physics2D.Raycast(leftWallCheck.position, Vector2.left, wallCheckDistance, groundLayer);
-        isTouchingRightWall = Physics2D.Raycast(rightWallCheck.position, Vector2.right, wallCheckDistance, groundLayer);
+        isGrounded = Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0f, groundLayer);
+        isTouchingLeftWall = Physics2D.OverlapBox(leftWallCheck.position, wallCheckSize, 0f, groundLayer);
+        isTouchingRightWall = Physics2D.OverlapBox(rightWallCheck.position, wallCheckSize, 0f, groundLayer);
 
         // Reset jump ability when grounded
         if (isGrounded && !isWallJumping)
@@ -167,6 +200,13 @@ public class PlayerShit : MonoBehaviour
         if (!isWallJumping)
         {
             rb.velocity = new Vector2(horizontalInput * moveSpeed, rb.velocity.y);
+        }
+
+        // Handle wall sliding
+        isWallSliding = (isTouchingLeftWall || isTouchingRightWall) && !isGrounded  && horizontalInput != 0;
+        if (isWallSliding)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, -wallSlideSpeed);
         }
 
         // Handle jump
@@ -205,6 +245,7 @@ public class PlayerShit : MonoBehaviour
     private void WallJump(Vector2 direction)
     {
         isWallJumping = true;
+        isWallSliding = false;
         wallJumpTimer = Time.time;
         rb.velocity = Vector2.zero;
         StartCoroutine(PerformWallJump(direction));
@@ -226,14 +267,14 @@ public class PlayerShit : MonoBehaviour
     {
         // Draw ground check gizmo
         Gizmos.color = Color.green;
-        Gizmos.DrawLine(groundCheck.position, groundCheck.position + Vector3.down * groundCheckRadius);
+        Gizmos.DrawWireCube(groundCheck.position, groundCheckSize);
 
         // Draw wall check gizmos
         Gizmos.color = isTouchingLeftWall ? Color.red : Color.blue;
-        Gizmos.DrawLine(leftWallCheck.position, leftWallCheck.position + Vector3.left * wallCheckDistance);
+        Gizmos.DrawWireCube(leftWallCheck.position, wallCheckSize);
 
         Gizmos.color = isTouchingRightWall ? Color.red : Color.blue;
-        Gizmos.DrawLine(rightWallCheck.position, rightWallCheck.position + Vector3.right * wallCheckDistance);
+        Gizmos.DrawWireCube(rightWallCheck.position, wallCheckSize);
     }
 }
 */
