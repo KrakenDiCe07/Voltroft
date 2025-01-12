@@ -56,9 +56,9 @@ public class PlayerShit : MonoBehaviour
         {
             rb.velocity = new Vector2(horizontalInput * moveSpeed, rb.velocity.y);
         }
-
+ 
         // Handle wall sliding
-        isWallSliding = (isTouchingLeftWall || isTouchingRightWall) && !isGrounded && horizontalInput != 0;
+        isWallSliding = (isTouchingLeftWall || isTouchingRightWall) && !isGrounded && horizontalInput != 0 && Input.GetKeyDown("Left") || Input.GetKeyDown("Right");
         if (isWallSliding)
         {
             rb.velocity = new Vector2(rb.velocity.x, -wallSlideSpeed);

@@ -970,7 +970,7 @@ MonoBehaviour:
   groundCheckSize: {x: 1.51, y: 0.05}
   leftWallCheck: {fileID: 1434800892}
   rightWallCheck: {fileID: 132484345}
-  wallCheckSize: {x: -0.2, y: 1.53}
+  wallCheckSize: {x: -0.1, y: 1.53}
 --- !u!1 &1209174322
 GameObject:
   m_ObjectHideFlags: 0
