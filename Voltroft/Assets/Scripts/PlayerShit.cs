@@ -54,14 +54,14 @@ public class PlayerShit : MonoBehaviour
         float horizontalInput = Input.GetAxis("Horizontal");
         if (!isWallJumping)
         {
-            rb.velocity = new Vector2(horizontalInput * moveSpeed, rb.velocity.y);
+            rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, rb.linearVelocity.y);
         }
  
         // Handle wall sliding
-        isWallSliding = (isTouchingLeftWall || isTouchingRightWall) && !isGrounded && horizontalInput != 0 && Input.GetKeyDown("Left") || Input.GetKeyDown("Right");
+        isWallSliding = (isTouchingLeftWall || isTouchingRightWall) && !isGrounded && horizontalInput != 0;
         if (isWallSliding)
         {
-            rb.velocity = new Vector2(rb.velocity.x, -wallSlideSpeed);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, -wallSlideSpeed);
             recentlyDetachedFromWall = false; // Reset the detach flag when sliding
         }
         else if ((isTouchingLeftWall || isTouchingRightWall) && !isWallSliding)
@@ -110,7 +110,7 @@ public class PlayerShit : MonoBehaviour
 
     private void Jump()
     {
-        rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         canJump = false;
     }
 
@@ -119,7 +119,7 @@ public class PlayerShit : MonoBehaviour
         isWallJumping = true;
         isWallSliding = false;
         wallJumpTimer = Time.time;
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
         StartCoroutine(PerformWallJump(direction));
     }
 
@@ -128,11 +128,11 @@ public class PlayerShit : MonoBehaviour
         float elapsedTime = 0f;
         while (elapsedTime < wallJumpLerpTime)
         {
-            rb.velocity = Vector2.Lerp(rb.velocity, new Vector2(direction.x * wallJumpForce, jumpForce), elapsedTime / wallJumpLerpTime);
+            rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, new Vector2(direction.x * wallJumpForce, jumpForce), elapsedTime / wallJumpLerpTime);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-        rb.velocity = new Vector2(direction.x * wallJumpForce * postWallJumpSpeedModifier, rb.velocity.y);
+        rb.linearVelocity = new Vector2(direction.x * wallJumpForce * postWallJumpSpeedModifier, rb.linearVelocity.y);
     }
 
     private void OnDrawGizmos()
