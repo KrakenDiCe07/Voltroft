@@ -85,7 +85,6 @@ public class PlayerShit : MonoBehaviour
             }
             else if (!isGrounded)
             {
-                yield return new WaitForSeconds((float)0.4);
                 if (isTouchingLeftWall)
                 {
                     WallJump(Vector2.right);
