@@ -151,7 +151,8 @@ public class PlayerShit : MonoBehaviour
 }
 
 
-/*{
+
+/* {
     public float moveSpeed = 5f;
     public float jumpForce = 10f;
     public float wallJumpForce = 8f;
@@ -159,6 +160,7 @@ public class PlayerShit : MonoBehaviour
     public float postWallJumpSpeedModifier = 0.5f;
     public float postWallJumpDuration = 0.5f;
     public float wallSlideSpeed = 2f;
+    public float wallDetachJumpGracePeriod = 0.2f; // Time window to allow jumping after leaving a wall
 
     public LayerMask groundLayer;
     public Transform groundCheck;
@@ -176,6 +178,8 @@ public class PlayerShit : MonoBehaviour
     private bool isWallJumping;
     private bool isWallSliding;
     private float wallJumpTimer;
+    private float wallDetachTimer;
+    private bool recentlyDetachedFromWall;
 
     private void Start()
     {
@@ -199,14 +203,26 @@ public class PlayerShit : MonoBehaviour
         float horizontalInput = Input.GetAxis("Horizontal");
         if (!isWallJumping)
         {
-            rb.velocity = new Vector2(horizontalInput * moveSpeed, rb.velocity.y);
+            rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, rb.linearVelocity.y);
         }
-
+ 
         // Handle wall sliding
-        isWallSliding = (isTouchingLeftWall || isTouchingRightWall) && !isGrounded  && horizontalInput != 0;
+        isWallSliding = (isTouchingLeftWall || isTouchingRightWall) && !isGrounded && horizontalInput != 0;
         if (isWallSliding)
         {
-            rb.velocity = new Vector2(rb.velocity.x, -wallSlideSpeed);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, -wallSlideSpeed);
+            recentlyDetachedFromWall = false; // Reset the detach flag when sliding
+        }
+        else if ((isTouchingLeftWall || isTouchingRightWall) && !isWallSliding)
+        {
+            recentlyDetachedFromWall = false;
+        }
+
+        // Handle wall detach timer
+        if (!isTouchingLeftWall && !isTouchingRightWall && !isGrounded && !recentlyDetachedFromWall)
+        {
+            wallDetachTimer = Time.time;
+            recentlyDetachedFromWall = true;
         }
 
         // Handle jump
@@ -226,6 +242,11 @@ public class PlayerShit : MonoBehaviour
                 {
                     WallJump(Vector2.left);
                 }
+                else if (recentlyDetachedFromWall && Time.time - wallDetachTimer <= wallDetachJumpGracePeriod)
+                {
+                    Jump();
+                    recentlyDetachedFromWall = false; // Consume the grace period jump
+                }
             }
         }
 
@@ -238,7 +259,7 @@ public class PlayerShit : MonoBehaviour
 
     private void Jump()
     {
-        rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         canJump = false;
     }
 
@@ -247,7 +268,7 @@ public class PlayerShit : MonoBehaviour
         isWallJumping = true;
         isWallSliding = false;
         wallJumpTimer = Time.time;
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
         StartCoroutine(PerformWallJump(direction));
     }
 
@@ -256,11 +277,11 @@ public class PlayerShit : MonoBehaviour
         float elapsedTime = 0f;
         while (elapsedTime < wallJumpLerpTime)
         {
-            rb.velocity = Vector2.Lerp(rb.velocity, new Vector2(direction.x * wallJumpForce, jumpForce), elapsedTime / wallJumpLerpTime);
+            rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, new Vector2(direction.x * wallJumpForce, jumpForce), elapsedTime / wallJumpLerpTime);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-        rb.velocity = new Vector2(direction.x * wallJumpForce * postWallJumpSpeedModifier, rb.velocity.y);
+        rb.linearVelocity = new Vector2(direction.x * wallJumpForce * postWallJumpSpeedModifier, rb.linearVelocity.y);
     }
 
     private void OnDrawGizmos()
@@ -276,5 +297,4 @@ public class PlayerShit : MonoBehaviour
         Gizmos.color = isTouchingRightWall ? Color.red : Color.blue;
         Gizmos.DrawWireCube(rightWallCheck.position, wallCheckSize);
     }
-}
-*/
+} */

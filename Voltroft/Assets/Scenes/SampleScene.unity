@@ -983,7 +983,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   groundCheck: {fileID: 2107791212}
-  groundCheckSize: {x: 1.51, y: 0.05}
+  groundCheckSize: {x: 1.51, y: 0.1}
   leftWallCheck: {fileID: 1434800892}
   rightWallCheck: {fileID: 132484345}
   wallCheckSize: {x: -0.1, y: 1.53}
