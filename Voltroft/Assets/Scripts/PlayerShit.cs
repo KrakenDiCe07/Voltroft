@@ -11,6 +11,7 @@ public class PlayerShit : MonoBehaviour
     public float postWallJumpSpeedModifier = 0.5f;
     public float postWallJumpDuration = 0.5f;
     public float wallSlideSpeed = 2f;
+    public float dashTime = 0.4f;
     public float wallDetachJumpGracePeriod = 0.2f; // Time window to allow jumping after leaving a wall
 
     public LayerMask groundLayer;
@@ -22,6 +23,8 @@ public class PlayerShit : MonoBehaviour
     public Vector2 wallCheckSize = new Vector2(0.1f, 1f);
 
     private Rigidbody2D rb;
+
+    [SerializeField] 
     private bool isGrounded;
     private bool canJump = true;
     private bool isTouchingLeftWall;
@@ -31,6 +34,9 @@ public class PlayerShit : MonoBehaviour
     private float wallJumpTimer;
     private float wallDetachTimer;
     private bool recentlyDetachedFromWall;
+
+    private KeyCode dashKey = KeyCode.S; 
+
 
     private void Start()
     {
@@ -106,6 +112,13 @@ public class PlayerShit : MonoBehaviour
         {
             isWallJumping = false;
         }
+        if (Input.GetKeyDown("s"))
+        {
+            while (Input.GetKey("s"))
+            {
+
+            }
+        }
     }
 
     private void Jump()
@@ -149,6 +162,8 @@ public class PlayerShit : MonoBehaviour
         Gizmos.DrawWireCube(rightWallCheck.position, wallCheckSize);
     }
 }
+
+
 
 
 
