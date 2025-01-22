@@ -978,7 +978,6 @@ MonoBehaviour:
   postWallJumpSpeedModifier: 0.05
   postWallJumpDuration: 0.05
   wallSlideSpeed: 6
-  dashTime: 0.4
   wallDetachJumpGracePeriod: 0.2
   groundLayer:
     serializedVersion: 2
@@ -989,6 +988,11 @@ MonoBehaviour:
   rightWallCheck: {fileID: 132484345}
   wallCheckSize: {x: -0.1, y: 1.53}
   isGrounded: 0
+  dashKey: 106
+  dashDuration: 0.4
+  dashVelocity: 24
+  isDashing: 0
+  canDash: 1
 --- !u!1 &1209174322
 GameObject:
   m_ObjectHideFlags: 0

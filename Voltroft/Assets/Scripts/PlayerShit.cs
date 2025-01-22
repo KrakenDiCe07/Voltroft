@@ -4,15 +4,14 @@ using UnityEngine;
 
 public class PlayerShit : MonoBehaviour
 {
-    public float moveSpeed = 5f;
-    public float jumpForce = 10f;
-    public float wallJumpForce = 8f;
-    public float wallJumpLerpTime = 0.2f;
-    public float postWallJumpSpeedModifier = 0.5f;
-    public float postWallJumpDuration = 0.5f;
-    public float wallSlideSpeed = 2f;
-    public float dashTime = 0.4f;
-    public float wallDetachJumpGracePeriod = 0.2f; // Time window to allow jumping after leaving a wall
+    public float moveSpeed;
+    public float jumpForce;
+    public float wallJumpForce;
+    public float wallJumpLerpTime = 0.1f;
+    public float postWallJumpSpeedModifier;
+    public float postWallJumpDuration;
+    public float wallSlideSpeed;
+    public float wallDetachJumpGracePeriod; // Time window to allow jumping after leaving a wall
 
     public LayerMask groundLayer;
     public Transform groundCheck;
@@ -35,8 +34,13 @@ public class PlayerShit : MonoBehaviour
     private float wallDetachTimer;
     private bool recentlyDetachedFromWall;
 
-    private KeyCode dashKey = KeyCode.S; 
-
+    [Header("   DASH")]
+    [SerializeField] private KeyCode dashKey = KeyCode.J; 
+    [SerializeField] private float dashDuration = 0.4f;
+    [SerializeField] private float dashVelocity = 8f;
+    [SerializeField] private bool isDashing = false;
+    [SerializeField] private bool canDash = true;
+    private float dashTime;
 
     private void Start()
     {
@@ -45,6 +49,31 @@ public class PlayerShit : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(dashKey) && canDash == true)
+        {
+            isDashing = true;
+            canDash = false;
+            moveSpeed += dashVelocity;
+            dashTime = dashDuration;
+        }
+        if (isDashing == true)
+        {  
+            dashTime -= Time.deltaTime;
+
+            if (dashTime <= 0)
+            {
+                isDashing = false;
+                moveSpeed -= dashVelocity;
+                canDash = true;
+            }
+        }
+        if (Input.GetKeyUp(dashKey) && isDashing == true)
+        {
+            isDashing = false;
+            moveSpeed -= dashVelocity;
+            canDash = true;
+        }
+
         // Check ground and wall states
         isGrounded = Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0f, groundLayer);
         isTouchingLeftWall = Physics2D.OverlapBox(leftWallCheck.position, wallCheckSize, 0f, groundLayer);
@@ -112,13 +141,6 @@ public class PlayerShit : MonoBehaviour
         {
             isWallJumping = false;
         }
-        if (Input.GetKeyDown("s"))
-        {
-            while (Input.GetKey("s"))
-            {
-
-            }
-        }
     }
 
     private void Jump()
@@ -162,10 +184,6 @@ public class PlayerShit : MonoBehaviour
         Gizmos.DrawWireCube(rightWallCheck.position, wallCheckSize);
     }
 }
-
-
-
-
 
 /* {
     public float moveSpeed = 5f;
