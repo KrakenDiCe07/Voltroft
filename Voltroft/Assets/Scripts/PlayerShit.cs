@@ -5,6 +5,246 @@ using UnityEngine;
 public class PlayerShit : MonoBehaviour
 {
     public float moveSpeed;
+    public float wallJumpForce;
+    public float wallJumpLerpTime = 0.1f;
+    public float postWallJumpSpeedModifier;
+    public float postWallJumpDuration;
+    public float wallSlideSpeed;
+    public float wallDetachJumpGracePeriod; // Time window to allow jumping after leaving a wall
+
+    public LayerMask groundLayer;
+    public Transform groundCheck;
+    public Vector2 groundCheckSize = new Vector2(0.5f, 0.1f);
+
+    public Transform leftWallCheck;
+    public Transform rightWallCheck;
+    public Vector2 wallCheckSize = new Vector2(0.1f, 1f);
+
+    private Rigidbody2D rb;
+
+    [SerializeField]
+    private bool isGrounded;
+    private bool canJump = true;
+    private bool isTouchingLeftWall;
+    private bool isTouchingRightWall;
+    private bool isWallJumping;
+    private bool isWallSliding;
+    private float wallJumpTimer;
+    private float wallDetachTimer;
+    private bool recentlyDetachedFromWall;
+
+    [Header("Dash")]
+    [SerializeField] private KeyCode dashKey = KeyCode.S;
+    [SerializeField] private float dashDuration = 0.4f;
+    [SerializeField] private float dashVelocity = 8f;
+    [SerializeField] private bool isDashing = false;
+    [SerializeField] private bool canDash = true;
+    private float dashTime;
+
+    [Header("Custom Gravity and Jump")]
+    public float jumpMaxHeight = 5f;       // Maximum jump height
+    public float jumpMinHeight = 2f;       // Minimum jump height
+    public float jumpTimeToMax = 0.5f;     // Time to reach max height
+    public float customGravityScale = 1.5f; // Multiplier for custom gravity
+    private Vector2 customGravity;
+    private float jumpVelocity;
+    private float minJumpVelocity;
+    private bool isJumping = false;
+    private float currentVerticalVelocity = 0f;
+    private float currentJumpTime = 0f;
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        rb.gravityScale = 0; // Disable built-in gravity
+        CalculateJumpVelocities();
+    }
+
+    private void Update()
+    {
+        ApplyCustomGravity();
+
+        // Handle Dash
+        if (Input.GetKeyDown(dashKey) && canDash && isGrounded)
+        {
+            isDashing = true;
+            canDash = false;
+            dashTime = dashDuration;
+        }
+        if (isDashing)
+        {
+            dashTime -= Time.deltaTime;
+            rb.linearVelocity = new Vector2(dashVelocity * Mathf.Sign(Input.GetAxis("Horizontal")), rb.linearVelocity.y);
+
+            if (dashTime <= 0)
+            {
+                isDashing = false;
+                canDash = true;
+            }
+        }
+
+        // Check ground and wall states
+        isGrounded = Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0f, groundLayer);
+        isTouchingLeftWall = Physics2D.OverlapBox(leftWallCheck.position, wallCheckSize, 0f, groundLayer);
+        isTouchingRightWall = Physics2D.OverlapBox(rightWallCheck.position, wallCheckSize, 0f, groundLayer);
+
+        // Reset jump ability when grounded
+        if (isGrounded && !isWallJumping)
+        {
+            canJump = true;
+            isJumping = false;
+        }
+
+        // Handle horizontal movement
+        float horizontalInput = Input.GetAxis("Horizontal");
+        if (!isWallJumping && !isDashing)
+        {
+            rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, currentVerticalVelocity);
+        }
+
+        // Handle wall sliding
+        isWallSliding = (isTouchingLeftWall || isTouchingRightWall) && !isGrounded && horizontalInput != 0;
+        if (isWallSliding)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, -wallSlideSpeed);
+            recentlyDetachedFromWall = false; // Reset the detach flag when sliding
+        }
+        else if ((isTouchingLeftWall || isTouchingRightWall) && !isWallSliding)
+        {
+            recentlyDetachedFromWall = false;
+        }
+
+        // Handle wall detach timer
+        if (!isTouchingLeftWall && !isTouchingRightWall && !isGrounded && !recentlyDetachedFromWall)
+        {
+            wallDetachTimer = Time.time;
+            recentlyDetachedFromWall = true;
+        }
+
+        // Handle jump input
+        if (Input.GetButtonDown("Jump") && canJump && isGrounded)
+        {
+            StartJump();
+        }
+        else if (Input.GetButtonDown("Jump") && isWallSliding)
+        {
+            if (isTouchingLeftWall)
+            {
+                WallJump(Vector2.right);
+            }
+            else if (isTouchingRightWall)
+            {
+                WallJump(Vector2.left);
+            }
+        }
+
+        if (Input.GetButtonUp("Jump") && isJumping)
+        {
+            StopJump();
+        }
+        if (isJumping)
+        {
+            PerformJump();
+        }
+
+        // Reset wall jump modifier
+        if (isWallJumping && Time.time > wallJumpTimer + postWallJumpDuration)
+        {
+            isWallJumping = false;
+        }
+    }
+
+    private void CalculateJumpVelocities()
+    {
+        // Calculate initial jump velocities based on desired heights and times
+        jumpVelocity = (2 * jumpMaxHeight) / jumpTimeToMax;
+        minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(customGravity.y) * jumpMinHeight);
+        customGravity = new Vector2(0, -(2 * jumpMaxHeight) / (jumpTimeToMax * jumpTimeToMax)) * customGravityScale;
+    }
+
+    private void ApplyCustomGravity()
+    {
+        if (!isJumping || rb.linearVelocity.y < 0) // Apply custom gravity when not jumping or falling
+        {
+            currentVerticalVelocity += customGravity.y * Time.deltaTime;
+        }
+    }
+
+    private void StartJump()
+    {
+        isJumping = true;
+        currentVerticalVelocity = jumpVelocity;
+        currentJumpTime = 0f;
+    }
+
+    private void PerformJump()
+    {
+        if (currentJumpTime < jumpTimeToMax)
+        {
+            currentVerticalVelocity = Mathf.Lerp(jumpVelocity, 0, currentJumpTime / jumpTimeToMax);
+            currentJumpTime += Time.deltaTime;
+        }
+        else
+        {
+            isJumping = false;
+        }
+    }
+
+    private void StopJump()
+    {
+        isJumping = false;
+        if (currentVerticalVelocity > minJumpVelocity)
+        {
+            currentVerticalVelocity = minJumpVelocity; // Immediately reduce to minimum jump velocity
+        }
+    }
+
+    private void WallJump(Vector2 direction)
+    {
+        isWallJumping = true;
+        isWallSliding = false;
+        wallJumpTimer = Time.time;
+        isJumping = false;
+        currentVerticalVelocity = 0;
+
+        StartCoroutine(PerformWallJump(direction));
+    }
+
+    private IEnumerator PerformWallJump(Vector2 direction)
+    {
+        float elapsedTime = 0f;
+        Vector2 targetVelocity = new Vector2(direction.x * wallJumpForce, jumpVelocity);
+        while (elapsedTime < wallJumpLerpTime)
+        {
+            rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, targetVelocity, elapsedTime / wallJumpLerpTime);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        rb.linearVelocity = new Vector2(direction.x * wallJumpForce * postWallJumpSpeedModifier, rb.linearVelocity.y);
+    }
+
+    private void OnDrawGizmos()
+    {
+        // Draw ground check gizmo
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireCube(groundCheck.position, groundCheckSize);
+
+        // Draw wall check gizmos
+        Gizmos.color = isTouchingLeftWall ? Color.red : Color.blue;
+        Gizmos.DrawWireCube(leftWallCheck.position, wallCheckSize);
+
+        Gizmos.color = isTouchingRightWall ? Color.red : Color.blue;
+        Gizmos.DrawWireCube(rightWallCheck.position, wallCheckSize);
+
+        // Custom gravity visualization
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(transform.position, transform.position + (Vector3)customGravity.normalized);
+    }
+}
+
+
+/* {
+    public float moveSpeed;
     public float jumpForce;
     public float wallJumpForce;
     public float wallJumpLerpTime = 0.1f;
@@ -49,7 +289,7 @@ public class PlayerShit : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(dashKey) && canDash == true)
+        if (Input.GetKeyDown(dashKey) && canDash == true && isGrounded)
         {
             isDashing = true;
             canDash = false;
@@ -74,153 +314,6 @@ public class PlayerShit : MonoBehaviour
             canDash = true;
         }
 
-        // Check ground and wall states
-        isGrounded = Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0f, groundLayer);
-        isTouchingLeftWall = Physics2D.OverlapBox(leftWallCheck.position, wallCheckSize, 0f, groundLayer);
-        isTouchingRightWall = Physics2D.OverlapBox(rightWallCheck.position, wallCheckSize, 0f, groundLayer);
-
-        // Reset jump ability when grounded
-        if (isGrounded && !isWallJumping)
-        {
-            canJump = true;
-        }
-
-        // Handle movement
-        float horizontalInput = Input.GetAxis("Horizontal");
-        if (!isWallJumping)
-        {
-            rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, rb.linearVelocity.y);
-        }
- 
-        // Handle wall sliding
-        isWallSliding = (isTouchingLeftWall || isTouchingRightWall) && !isGrounded && horizontalInput != 0;
-        if (isWallSliding)
-        {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, -wallSlideSpeed);
-            recentlyDetachedFromWall = false; // Reset the detach flag when sliding
-        }
-        else if ((isTouchingLeftWall || isTouchingRightWall) && !isWallSliding)
-        {
-            recentlyDetachedFromWall = false;
-        }
-
-        // Handle wall detach timer
-        if (!isTouchingLeftWall && !isTouchingRightWall && !isGrounded && !recentlyDetachedFromWall)
-        {
-            wallDetachTimer = Time.time;
-            recentlyDetachedFromWall = true;
-        }
-
-        // Handle jump
-        if (Input.GetButtonDown("Jump"))
-        {
-            if (canJump && isGrounded)
-            {
-                Jump();
-            }
-            else if (!isGrounded)
-            {
-                if (isTouchingLeftWall)
-                {
-                    WallJump(Vector2.right);
-                }
-                else if (isTouchingRightWall)
-                {
-                    WallJump(Vector2.left);
-                }
-                else if (recentlyDetachedFromWall && Time.time - wallDetachTimer <= wallDetachJumpGracePeriod)
-                {
-                    Jump();
-                    recentlyDetachedFromWall = false; // Consume the grace period jump
-                }
-            }
-        }
-
-        // Reset wall jump modifier
-        if (isWallJumping && Time.time > wallJumpTimer + postWallJumpDuration)
-        {
-            isWallJumping = false;
-        }
-    }
-
-    private void Jump()
-    {
-        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-        canJump = false;
-    }
-
-    private void WallJump(Vector2 direction)
-    {
-        isWallJumping = true;
-        isWallSliding = false;
-        wallJumpTimer = Time.time;
-        rb.linearVelocity = Vector2.zero;
-        StartCoroutine(PerformWallJump(direction));
-    }
-
-    private System.Collections.IEnumerator PerformWallJump(Vector2 direction)
-    {
-        float elapsedTime = 0f;
-        while (elapsedTime < wallJumpLerpTime)
-        {
-            rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, new Vector2(direction.x * wallJumpForce, jumpForce), elapsedTime / wallJumpLerpTime);
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-        rb.linearVelocity = new Vector2(direction.x * wallJumpForce * postWallJumpSpeedModifier, rb.linearVelocity.y);
-    }
-
-    private void OnDrawGizmos()
-    {
-        // Draw ground check gizmo
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireCube(groundCheck.position, groundCheckSize);
-
-        // Draw wall check gizmos
-        Gizmos.color = isTouchingLeftWall ? Color.red : Color.blue;
-        Gizmos.DrawWireCube(leftWallCheck.position, wallCheckSize);
-
-        Gizmos.color = isTouchingRightWall ? Color.red : Color.blue;
-        Gizmos.DrawWireCube(rightWallCheck.position, wallCheckSize);
-    }
-}
-
-/* {
-    public float moveSpeed = 5f;
-    public float jumpForce = 10f;
-    public float wallJumpForce = 8f;
-    public float wallJumpLerpTime = 0.2f;
-    public float postWallJumpSpeedModifier = 0.5f;
-    public float postWallJumpDuration = 0.5f;
-    public float wallSlideSpeed = 2f;
-    public float wallDetachJumpGracePeriod = 0.2f; // Time window to allow jumping after leaving a wall
-
-    public LayerMask groundLayer;
-    public Transform groundCheck;
-    public Vector2 groundCheckSize = new Vector2(0.5f, 0.1f);
-
-    public Transform leftWallCheck;
-    public Transform rightWallCheck;
-    public Vector2 wallCheckSize = new Vector2(0.1f, 1f);
-
-    private Rigidbody2D rb;
-    private bool isGrounded;
-    private bool canJump = true;
-    private bool isTouchingLeftWall;
-    private bool isTouchingRightWall;
-    private bool isWallJumping;
-    private bool isWallSliding;
-    private float wallJumpTimer;
-    private float wallDetachTimer;
-    private bool recentlyDetachedFromWall;
-
-    private void Start()
-    {
-        rb = GetComponent<Rigidbody2D>();
-    }
-
-    private void Update()
-    {
         // Check ground and wall states
         isGrounded = Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0f, groundLayer);
         isTouchingLeftWall = Physics2D.OverlapBox(leftWallCheck.position, wallCheckSize, 0f, groundLayer);
