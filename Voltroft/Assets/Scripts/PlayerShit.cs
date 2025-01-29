@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerShit : MonoBehaviour
 {
     public float moveSpeed;
+    public float jumpForce;
     public float wallJumpForce;
     public float wallJumpLerpTime = 0.1f;
     public float postWallJumpSpeedModifier;
@@ -22,7 +23,7 @@ public class PlayerShit : MonoBehaviour
 
     private Rigidbody2D rb;
 
-    [SerializeField]
+    [SerializeField] 
     private bool isGrounded;
     private bool canJump = true;
     private bool isTouchingLeftWall;
@@ -33,54 +34,44 @@ public class PlayerShit : MonoBehaviour
     private float wallDetachTimer;
     private bool recentlyDetachedFromWall;
 
-    [Header("Dash")]
-    [SerializeField] private KeyCode dashKey = KeyCode.S;
+    [Header("   DASH")]
+    [SerializeField] private KeyCode dashKey = KeyCode.J; 
     [SerializeField] private float dashDuration = 0.4f;
     [SerializeField] private float dashVelocity = 8f;
     [SerializeField] private bool isDashing = false;
     [SerializeField] private bool canDash = true;
     private float dashTime;
 
-    [Header("Custom Gravity and Jump")]
-    public float jumpMaxHeight = 5f;       // Maximum jump height
-    public float jumpMinHeight = 2f;       // Minimum jump height
-    public float jumpTimeToMax = 0.5f;     // Time to reach max height
-    public float customGravityScale = 1.5f; // Multiplier for custom gravity
-    private Vector2 customGravity;
-    private float jumpVelocity;
-    private float minJumpVelocity;
-    private bool isJumping = false;
-    private float currentVerticalVelocity = 0f;
-    private float currentJumpTime = 0f;
-
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        rb.gravityScale = 0; // Disable built-in gravity
-        CalculateJumpVelocities();
     }
 
     private void Update()
     {
-        ApplyCustomGravity();
-
-        // Handle Dash
-        if (Input.GetKeyDown(dashKey) && canDash && isGrounded)
+        if (Input.GetKeyDown(dashKey) && canDash == true && isGrounded)
         {
             isDashing = true;
             canDash = false;
+            moveSpeed += dashVelocity;
             dashTime = dashDuration;
         }
-        if (isDashing)
-        {
+        if (isDashing == true)
+        {  
             dashTime -= Time.deltaTime;
-            rb.linearVelocity = new Vector2(dashVelocity * Mathf.Sign(Input.GetAxis("Horizontal")), rb.linearVelocity.y);
 
             if (dashTime <= 0)
             {
                 isDashing = false;
+                moveSpeed -= dashVelocity;
                 canDash = true;
             }
+        }
+        if (Input.GetKeyUp(dashKey) && isDashing == true)
+        {
+            isDashing = false;
+            moveSpeed -= dashVelocity;
+            canDash = true;
         }
 
         // Check ground and wall states
@@ -92,16 +83,15 @@ public class PlayerShit : MonoBehaviour
         if (isGrounded && !isWallJumping)
         {
             canJump = true;
-            isJumping = false;
         }
 
-        // Handle horizontal movement
+        // Handle movement
         float horizontalInput = Input.GetAxis("Horizontal");
-        if (!isWallJumping && !isDashing)
+        if (!isWallJumping)
         {
-            rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, currentVerticalVelocity);
+            rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, rb.linearVelocity.y);
         }
-
+ 
         // Handle wall sliding
         isWallSliding = (isTouchingLeftWall || isTouchingRightWall) && !isGrounded && horizontalInput != 0;
         if (isWallSliding)
@@ -121,30 +111,29 @@ public class PlayerShit : MonoBehaviour
             recentlyDetachedFromWall = true;
         }
 
-        // Handle jump input
-        if (Input.GetButtonDown("Jump") && canJump && isGrounded)
+        // Handle jump
+        if (Input.GetButtonDown("Jump"))
         {
-            StartJump();
-        }
-        else if (Input.GetButtonDown("Jump") && isWallSliding)
-        {
-            if (isTouchingLeftWall)
+            if (canJump && isGrounded)
             {
-                WallJump(Vector2.right);
+                Jump();
             }
-            else if (isTouchingRightWall)
+            else if (!isGrounded)
             {
-                WallJump(Vector2.left);
+                if (isTouchingLeftWall)
+                {
+                    WallJump(Vector2.right);
+                }
+                else if (isTouchingRightWall)
+                {
+                    WallJump(Vector2.left);
+                }
+                else if (recentlyDetachedFromWall && Time.time - wallDetachTimer <= wallDetachJumpGracePeriod)
+                {
+                    Jump();
+                    recentlyDetachedFromWall = false; // Consume the grace period jump
+                }
             }
-        }
-
-        if (Input.GetButtonUp("Jump") && isJumping)
-        {
-            StopJump();
-        }
-        if (isJumping)
-        {
-            PerformJump();
         }
 
         // Reset wall jump modifier
@@ -154,49 +143,10 @@ public class PlayerShit : MonoBehaviour
         }
     }
 
-    private void CalculateJumpVelocities()
+    private void Jump()
     {
-        // Calculate initial jump velocities based on desired heights and times
-        jumpVelocity = (2 * jumpMaxHeight) / jumpTimeToMax;
-        minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(customGravity.y) * jumpMinHeight);
-        customGravity = new Vector2(0, -(2 * jumpMaxHeight) / (jumpTimeToMax * jumpTimeToMax)) * customGravityScale;
-    }
-
-    private void ApplyCustomGravity()
-    {
-        if (!isJumping || rb.linearVelocity.y < 0) // Apply custom gravity when not jumping or falling
-        {
-            currentVerticalVelocity += customGravity.y * Time.deltaTime;
-        }
-    }
-
-    private void StartJump()
-    {
-        isJumping = true;
-        currentVerticalVelocity = jumpVelocity;
-        currentJumpTime = 0f;
-    }
-
-    private void PerformJump()
-    {
-        if (currentJumpTime < jumpTimeToMax)
-        {
-            currentVerticalVelocity = Mathf.Lerp(jumpVelocity, 0, currentJumpTime / jumpTimeToMax);
-            currentJumpTime += Time.deltaTime;
-        }
-        else
-        {
-            isJumping = false;
-        }
-    }
-
-    private void StopJump()
-    {
-        isJumping = false;
-        if (currentVerticalVelocity > minJumpVelocity)
-        {
-            currentVerticalVelocity = minJumpVelocity; // Immediately reduce to minimum jump velocity
-        }
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+        canJump = false;
     }
 
     private void WallJump(Vector2 direction)
@@ -204,19 +154,16 @@ public class PlayerShit : MonoBehaviour
         isWallJumping = true;
         isWallSliding = false;
         wallJumpTimer = Time.time;
-        isJumping = false;
-        currentVerticalVelocity = 0;
-
+        rb.linearVelocity = Vector2.zero;
         StartCoroutine(PerformWallJump(direction));
     }
 
-    private IEnumerator PerformWallJump(Vector2 direction)
+    private System.Collections.IEnumerator PerformWallJump(Vector2 direction)
     {
         float elapsedTime = 0f;
-        Vector2 targetVelocity = new Vector2(direction.x * wallJumpForce, jumpVelocity);
         while (elapsedTime < wallJumpLerpTime)
         {
-            rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, targetVelocity, elapsedTime / wallJumpLerpTime);
+            rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, new Vector2(direction.x * wallJumpForce, jumpForce), elapsedTime / wallJumpLerpTime);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
@@ -235,13 +182,8 @@ public class PlayerShit : MonoBehaviour
 
         Gizmos.color = isTouchingRightWall ? Color.red : Color.blue;
         Gizmos.DrawWireCube(rightWallCheck.position, wallCheckSize);
-
-        // Custom gravity visualization
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(transform.position, transform.position + (Vector3)customGravity.normalized);
     }
 }
-
 
 /* {
     public float moveSpeed;

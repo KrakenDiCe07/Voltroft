@@ -828,8 +828,8 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
+  m_GravityScale: 4
+  m_Material: {fileID: 6200000, guid: 5964be1bcff64474ea3257287fe9aca0, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -838,7 +838,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!61 &919381443
 BoxCollider2D:
@@ -972,7 +972,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 10
-  wallJumpForce: 25
+  jumpForce: 15
+  wallJumpForce: 16
   wallJumpLerpTime: 0.1
   postWallJumpSpeedModifier: 0.05
   postWallJumpDuration: 0.05
@@ -992,10 +993,6 @@ MonoBehaviour:
   dashVelocity: 18
   isDashing: 0
   canDash: 1
-  jumpMaxHeight: 5
-  jumpMinHeight: 2
-  jumpTimeToMax: 0.5
-  customGravityScale: 1.5
 --- !u!1 &1209174322
 GameObject:
   m_ObjectHideFlags: 0
@@ -1024,7 +1021,7 @@ BoxCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 5964be1bcff64474ea3257287fe9aca0, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
