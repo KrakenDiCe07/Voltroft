@@ -5,11 +5,6 @@ using UnityEngine;
 public class PlayerShit : MonoBehaviour
 {
     public float moveSpeed;
-    public float jumpForce;
-    public float wallJumpForce;
-    public float wallJumpLerpTime = 0.1f;
-    public float postWallJumpSpeedModifier;
-    public float postWallJumpDuration;
     public float wallSlideSpeed;
     public float wallDetachJumpGracePeriod; // Time window to allow jumping after leaving a wall
 
@@ -23,18 +18,26 @@ public class PlayerShit : MonoBehaviour
 
     private Rigidbody2D rb;
 
-    [SerializeField] 
-    private bool isGrounded;
-    private bool canJump = true;
+    [SerializeField] private bool isGrounded;    
     private bool isTouchingLeftWall;
     private bool isTouchingRightWall;
     private bool isWallJumping;
     private bool isWallSliding;
-    private float wallJumpTimer;
+    [SerializeField] private float wallJumpTimer;
     private float wallDetachTimer;
     private bool recentlyDetachedFromWall;
 
-    [Header("   DASH")]
+    [Header("   JUMP OPTIONS")]
+    [SerializeField] private KeyCode jumpKey = KeyCode.Space;
+    [SerializeField]private bool canJump = true;
+    [SerializeField]private bool isJumping = false;
+    public float jumpForce;
+    public float wallJumpForce;
+    public float wallJumpLerpTime = 0.1f;
+    public float postWallJumpSpeedModifier;
+    public float postWallJumpDuration;
+
+    [Header("   DASH OPTIONS")]
     [SerializeField] private KeyCode dashKey = KeyCode.J; 
     [SerializeField] private float dashDuration = 0.4f;
     [SerializeField] private float dashVelocity = 8f;
@@ -49,6 +52,7 @@ public class PlayerShit : MonoBehaviour
 
     private void Update()
     {
+
         if (Input.GetKeyDown(dashKey) && canDash == true && isGrounded)
         {
             isDashing = true;

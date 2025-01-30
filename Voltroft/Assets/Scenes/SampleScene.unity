@@ -455,7 +455,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0.42138356, g: 0.42138356, b: 0.42138356, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -828,7 +828,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 4
+  m_GravityScale: 3.5
   m_Material: {fileID: 6200000, guid: 5964be1bcff64474ea3257287fe9aca0, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -972,11 +972,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 10
-  jumpForce: 15
-  wallJumpForce: 16
-  wallJumpLerpTime: 0.1
-  postWallJumpSpeedModifier: 0.05
-  postWallJumpDuration: 0.05
   wallSlideSpeed: 6
   wallDetachJumpGracePeriod: 0.2
   groundLayer:
@@ -988,6 +983,15 @@ MonoBehaviour:
   rightWallCheck: {fileID: 132484345}
   wallCheckSize: {x: -0.1, y: 1.53}
   isGrounded: 0
+  wallJumpTimer: 0
+  jumpKey: 32
+  canJump: 1
+  isJumping: 0
+  jumpForce: 15
+  wallJumpForce: 17
+  wallJumpLerpTime: 0.1
+  postWallJumpSpeedModifier: 0.05
+  postWallJumpDuration: 0.05
   dashKey: 106
   dashDuration: 0.4
   dashVelocity: 18
