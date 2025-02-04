@@ -64,7 +64,7 @@ public class PlayerShit : MonoBehaviour
         {  
             dashTime -= Time.deltaTime;
 
-            if (dashTime <= 0)
+            if (dashTime <= 0 && (isGrounded || isWallSliding))
             {
                 isDashing = false;
                 moveSpeed -= dashVelocity;
@@ -116,7 +116,7 @@ public class PlayerShit : MonoBehaviour
         }
 
         // Handle jump
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetKeyDown(jumpKey))
         {
             if (canJump && isGrounded)
             {
