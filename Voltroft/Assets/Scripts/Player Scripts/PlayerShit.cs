@@ -121,6 +121,7 @@ public class PlayerShit : MonoBehaviour
             if (canJump && isGrounded)
             {
                 Jump();
+                StartCoroutine(DelayFirstWallGrapple(0.2f));
             }
             else if (!isGrounded)
             {
@@ -177,7 +178,10 @@ public class PlayerShit : MonoBehaviour
     private void OnDrawGizmos()
     {
         // Draw ground check gizmo
-        Gizmos.color = Color.green;
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(groundCheck.position, groundCheckSize);
+
+        Gizmos.color = isGrounded ? Color.green : Color.yellow;
         Gizmos.DrawWireCube(groundCheck.position, groundCheckSize);
 
         // Draw wall check gizmos
@@ -186,6 +190,10 @@ public class PlayerShit : MonoBehaviour
 
         Gizmos.color = isTouchingRightWall ? Color.red : Color.blue;
         Gizmos.DrawWireCube(rightWallCheck.position, wallCheckSize);
+    }
+    IEnumerator DelayFirstWallGrapple(float delay)
+    {
+        yield return new WaitForSeconds(delay);
     }
 }
 

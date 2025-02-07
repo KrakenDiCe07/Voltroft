@@ -989,7 +989,7 @@ MonoBehaviour:
   isJumping: 0
   jumpForce: 15
   wallJumpForce: 17
-  wallJumpLerpTime: 0.1
+  wallJumpLerpTime: 0.15
   postWallJumpSpeedModifier: 0.05
   postWallJumpDuration: 0.05
   dashKey: 106
