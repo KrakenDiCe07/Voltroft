@@ -17,7 +17,7 @@ public class PlayerShit : MonoBehaviour
     public Vector2 wallCheckSize = new Vector2(0.1f, 1f);
 
     private Rigidbody2D rb;
-
+    private int facingDirection = 1;
     [SerializeField] private bool isGrounded;    
     private bool isTouchingLeftWall;
     private bool isTouchingRightWall;
@@ -26,6 +26,11 @@ public class PlayerShit : MonoBehaviour
     [SerializeField] private float wallJumpTimer;
     private float wallDetachTimer;
     private bool recentlyDetachedFromWall;
+
+    [Header("Shooting")]
+    public GameObject projectilePrefab;
+    public Transform firePoint;
+    public KeyCode fireKey = KeyCode.K;
 
     [Header("   JUMP OPTIONS")]
     [SerializeField] private KeyCode jumpKey = KeyCode.Space;
@@ -52,7 +57,22 @@ public class PlayerShit : MonoBehaviour
 
     private void Update()
     {
+        float horizontalInput = Input.GetAxis("Horizontal");
 
+        // Update facing direction based on movement
+        if (horizontalInput > 0)
+        {
+            facingDirection = 1;
+        }
+        else if (horizontalInput < 0)
+        {
+            facingDirection = -1;
+        }
+        if (facingDirection == -1)
+        {
+            
+        }
+        
         if (Input.GetKeyDown(dashKey) && canDash == true && isGrounded)
         {
             isDashing = true;
@@ -90,7 +110,7 @@ public class PlayerShit : MonoBehaviour
         }
 
         // Handle movement
-        float horizontalInput = Input.GetAxis("Horizontal");
+
         if (!isWallJumping)
         {
             rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, rb.linearVelocity.y);
@@ -146,8 +166,15 @@ public class PlayerShit : MonoBehaviour
         {
             isWallJumping = false;
         }
+        if (Input.GetKeyDown(fireKey))
+        {
+            Shoot();
+        }
     }
-
+    public int GetFacingDirection()
+    {
+        return facingDirection;
+    }
     private void Jump()
     {
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
@@ -194,6 +221,15 @@ public class PlayerShit : MonoBehaviour
     IEnumerator DelayFirstWallGrapple(float delay)
     {
         yield return new WaitForSeconds(delay);
+    }
+    private void Shoot()
+    {
+        GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
+        PlayerProjectile projectileScript = projectile.GetComponent<PlayerProjectile>();
+
+    // Get the direction based on player facing
+        Vector2 shootDirection = transform.localScale.x > 0 ? Vector2.right : Vector2.left;
+        projectileScript.Initialize(shootDirection);
     }
 }
 

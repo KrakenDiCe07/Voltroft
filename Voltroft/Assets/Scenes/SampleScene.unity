@@ -284,6 +284,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 919381445}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &199285520
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 199285521}
+  m_Layer: 0
+  m_Name: ProjectilePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &199285521
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 199285520}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.7, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 919381445}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &473205892
 GameObject:
   m_ObjectHideFlags: 0
@@ -957,6 +988,7 @@ Transform:
   - {fileID: 2107791212}
   - {fileID: 1434800892}
   - {fileID: 132484345}
+  - {fileID: 199285521}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &919381446
@@ -984,6 +1016,9 @@ MonoBehaviour:
   wallCheckSize: {x: -0.1, y: 1.53}
   isGrounded: 0
   wallJumpTimer: 0
+  projectilePrefab: {fileID: 5866565665185367657, guid: 1c6f502396e4cbf4e9b5d9f53aad288f, type: 3}
+  firePoint: {fileID: 199285521}
+  fireKey: 106
   jumpKey: 32
   canJump: 1
   isJumping: 0
@@ -992,7 +1027,7 @@ MonoBehaviour:
   wallJumpLerpTime: 0.15
   postWallJumpSpeedModifier: 0.05
   postWallJumpDuration: 0.05
-  dashKey: 106
+  dashKey: 107
   dashDuration: 0.4
   dashVelocity: 18
   isDashing: 0
