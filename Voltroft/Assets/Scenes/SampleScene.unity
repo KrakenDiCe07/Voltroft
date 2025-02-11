@@ -309,7 +309,7 @@ Transform:
   m_GameObject: {fileID: 199285520}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.7, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1014,9 +1014,8 @@ MonoBehaviour:
   leftWallCheck: {fileID: 1434800892}
   rightWallCheck: {fileID: 132484345}
   wallCheckSize: {x: -0.1, y: 1.53}
-  isGrounded: 0
-  wallJumpTimer: 0
-  projectilePrefab: {fileID: 5866565665185367657, guid: 1c6f502396e4cbf4e9b5d9f53aad288f, type: 3}
+  facingDirection: 1
+  projectilePrefab: {fileID: 2395410033259067884, guid: a9f87f145a67bbf4085dc755459e587d, type: 3}
   firePoint: {fileID: 199285521}
   fireKey: 106
   jumpKey: 32
