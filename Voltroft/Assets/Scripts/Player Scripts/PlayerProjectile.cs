@@ -39,6 +39,13 @@ public class PlayerProjectile : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    void OnCollisionEnter2D(Collision2D other)
+    {
+        if(other.gameObject.CompareTag("Ground"))
+        {
+            Destroy(gameObject);
+        }
+    }
 }
 
 /*{

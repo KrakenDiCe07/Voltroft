@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 51812177}
   m_Layer: 3
   m_Name: Wall
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -328,7 +328,7 @@ GameObject:
   - component: {fileID: 473205893}
   m_Layer: 3
   m_Name: Wall (2)
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -569,7 +569,7 @@ GameObject:
   - component: {fileID: 583753996}
   m_Layer: 3
   m_Name: Wall (3)
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -703,7 +703,7 @@ GameObject:
   - component: {fileID: 907274321}
   m_Layer: 3
   m_Name: Wall (4)
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1019,18 +1019,15 @@ MonoBehaviour:
   firePoint: {fileID: 199285521}
   fireKey: 106
   jumpKey: 32
-  canJump: 1
-  isJumping: 0
   jumpForce: 15
+  jumpTime: 0.3
+  jumpCutMultiplier: 0.5
   wallJumpForce: 17
-  wallJumpLerpTime: 0.15
+  wallJumpTime: 0.2
   postWallJumpSpeedModifier: 0.05
-  postWallJumpDuration: 0.05
   dashKey: 107
   dashDuration: 0.4
   dashVelocity: 18
-  isDashing: 0
-  canDash: 1
 --- !u!1 &1209174322
 GameObject:
   m_ObjectHideFlags: 0
@@ -1044,7 +1041,7 @@ GameObject:
   - component: {fileID: 1209174323}
   m_Layer: 3
   m_Name: Wall (1)
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
