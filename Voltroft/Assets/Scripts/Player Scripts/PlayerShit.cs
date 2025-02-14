@@ -152,10 +152,18 @@ public class PlayerShit : MonoBehaviour
     private IEnumerator JumpRoutine()
     {
         isJumping = true;
-        float time = 0;
+        float time = 0f;
+        float initialBoost = jumpForce * 0.6f; // Strong push at the start
+        float remainingForce = jumpForce - initialBoost; // Smooth force applied over time
+
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, initialBoost); // Apply initial push
+
         while (Input.GetKey(jumpKey) && time < jumpTime)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, Mathf.Lerp(rb.linearVelocity.y, jumpForce, time / jumpTime));
+            float jumpProgress = time / jumpTime; // 0 to 1
+            float appliedForce = Mathf.Lerp(initialBoost, jumpForce, jumpProgress);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, appliedForce);
+
             time += Time.deltaTime;
             yield return null;
         }
@@ -192,6 +200,17 @@ public class PlayerShit : MonoBehaviour
         projectile.transform.rotation = Quaternion.Euler(0f, 0f, rotationZ);
 
         projectileScript.Initialize(shootDirection);
+    }
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = isGrounded ? Color.green : Color.yellow;
+        Gizmos.DrawWireCube(groundCheck.position, groundCheckSize);
+
+        Gizmos.color = isTouchingLeftWall ? Color.red : Color.blue;
+        Gizmos.DrawWireCube(leftWallCheck.position, wallCheckSize);
+
+        Gizmos.color = isTouchingRightWall ? Color.red : Color.blue;
+        Gizmos.DrawWireCube(rightWallCheck.position, wallCheckSize);
     }
 }
 

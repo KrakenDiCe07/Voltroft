@@ -6,18 +6,26 @@ public class PlayerProjectile : MonoBehaviour
     public float maxSpeed = 10f;
     public float accelerationTime = 0.5f; // Time in seconds to reach max speed
     public float maxDistance = 10f; // Distance before despawning
+    public PlayerShit playerScript;
 
     private float currentSpeed;
     private float accelerationTimer;
     private Vector2 direction;
     private Vector2 startPosition;
 
+    public void Start()
+    {
+        playerScript = GetComponent<PlayerShit>();
+    }
     public void Initialize(Vector2 shootDirection)
     {
         direction = shootDirection.normalized;
-        currentSpeed = initialSpeed;
         accelerationTimer = 0f;
         startPosition = transform.position;
+        if(playerScript.shotCharged == true)
+        {
+            
+        }
     }
 
     private void Update()
@@ -43,6 +51,11 @@ public class PlayerProjectile : MonoBehaviour
     {
         if(other.gameObject.CompareTag("Ground"))
         {
+            Destroy(gameObject);
+        }
+        if(other.gameObject.CompareTag("BreakableGround"))
+        {
+            Destroy(other.gameObject);
             Destroy(gameObject);
         }
     }
@@ -82,6 +95,13 @@ public class PlayerProjectile : MonoBehaviour
 
         // Destroy the projectile if it exceeds max distance
         if (Vector2.Distance(startPosition, transform.position) >= maxDistance)
+        {
+            Destroy(gameObject);
+        }
+    }
+    void OnCollisionEnter2D(Collision2D other)
+    {
+        if(other.gameObject.CompareTag("Ground"))
         {
             Destroy(gameObject);
         }
