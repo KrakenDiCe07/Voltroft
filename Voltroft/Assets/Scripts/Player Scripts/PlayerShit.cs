@@ -17,7 +17,7 @@ public class PlayerShit : MonoBehaviour
     public Vector2 wallCheckSize = new Vector2(0.1f, 1f);
 
     private Rigidbody2D rb;
-    [SerializeField] private int facingDirection = 1;
+    private int facingDirection = 1;
     private bool isGrounded;
     private bool isTouchingLeftWall;
     private bool isTouchingRightWall;
@@ -32,8 +32,11 @@ public class PlayerShit : MonoBehaviour
 
     [Header("Shooting")]
     public GameObject projectilePrefab;
+    public GameObject chargedProjectilePrefab;
     public Transform firePoint;
     public KeyCode fireKey = KeyCode.K;
+    public float chargeTime = 2;
+    public bool shotCharged = false;
 
     [Header("Jump Options")]
     public KeyCode jumpKey = KeyCode.Space;
@@ -146,6 +149,27 @@ public class PlayerShit : MonoBehaviour
         if (Input.GetKeyDown(fireKey))
         {
             Shoot();
+            shotCharged = false;
+            float time = 0f;
+            while (Input.GetKey(fireKey) && time < chargeTime)
+            {
+                time += Time.deltaTime;
+                if (time >= chargeTime)
+                {
+                    shotCharged = true;
+                }
+            }
+            if (time >= chargeTime)
+            {
+                shotCharged = true;
+            }
+        }
+        if (Input.GetKeyUp(fireKey))
+        {
+            if (shotCharged == true)
+            {
+                ShootCharged();
+            }
         }
     }
 
@@ -198,6 +222,17 @@ public class PlayerShit : MonoBehaviour
         Vector2 shootDirection = facingDirection == 1 ? Vector2.right : Vector2.left;
         float rotationZ = facingDirection == 1 ? -90f : 90f;
         projectile.transform.rotation = Quaternion.Euler(0f, 0f, rotationZ);
+
+        projectileScript.Initialize(shootDirection);
+    }
+    private void ShootCharged()
+    {
+        GameObject chargedProjectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
+        PlayerProjectile projectileScript = chargedProjectile.GetComponent<PlayerProjectile>();
+
+        Vector2 shootDirection = facingDirection == 1 ? Vector2.right : Vector2.left;
+        float rotationZ = facingDirection == 1 ? -90f : 90f;
+        chargedProjectile.transform.rotation = Quaternion.Euler(0f, 0f, rotationZ);
 
         projectileScript.Initialize(shootDirection);
     }

@@ -22,10 +22,11 @@ public class PlayerProjectile : MonoBehaviour
         direction = shootDirection.normalized;
         accelerationTimer = 0f;
         startPosition = transform.position;
-       /* if(playerScript.shotCharged == true)
+        if(playerScript.shotCharged == true)
         {
-            
-        }*/
+            initialSpeed += 3;
+            maxSpeed += 5;
+        }
     }
 
     private void Update()
@@ -45,6 +46,9 @@ public class PlayerProjectile : MonoBehaviour
         if (Vector2.Distance(startPosition, transform.position) >= maxDistance)
         {
             Destroy(gameObject);
+            playerScript.shotCharged = false;
+            initialSpeed -= 3;
+            maxSpeed -= 5;
         }
     }
     void OnCollisionEnter2D(Collision2D other)
@@ -52,11 +56,17 @@ public class PlayerProjectile : MonoBehaviour
         if(other.gameObject.CompareTag("Ground"))
         {
             Destroy(gameObject);
+            playerScript.shotCharged = false;
+            initialSpeed -= 3;
+            maxSpeed -= 5;
         }
         if(other.gameObject.CompareTag("BreakableGround"))
         {
             Destroy(other.gameObject);
+            playerScript.shotCharged = false;
             Destroy(gameObject);
+            initialSpeed -= 3;
+            maxSpeed -= 5;
         }
     }
 }

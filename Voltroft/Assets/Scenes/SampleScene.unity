@@ -1148,10 +1148,12 @@ MonoBehaviour:
   leftWallCheck: {fileID: 1434800892}
   rightWallCheck: {fileID: 132484345}
   wallCheckSize: {x: -0.1, y: 1.53}
-  facingDirection: 1
   projectilePrefab: {fileID: 2395410033259067884, guid: a9f87f145a67bbf4085dc755459e587d, type: 3}
+  chargedProjectilePrefab: {fileID: 2395410033259067884, guid: 975705bfd2b729d4b94696b253f719fe, type: 3}
   firePoint: {fileID: 199285521}
   fireKey: 106
+  chargeTime: 2
+  shotCharged: 0
   jumpKey: 32
   jumpForce: 15
   jumpTime: 0.3
