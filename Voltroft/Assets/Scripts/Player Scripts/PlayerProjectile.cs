@@ -6,8 +6,8 @@ public class PlayerProjectile : MonoBehaviour
     public float maxSpeed = 10f;
     public float accelerationTime = 0.5f; // Time in seconds to reach max speed
     public float maxDistance = 10f; // Distance before despawning
-    public PlayerShit playerScript;
-
+    
+    private PlayerShit playerScript;
     private float currentSpeed;
     private float accelerationTimer;
     private Vector2 direction;
@@ -22,10 +22,10 @@ public class PlayerProjectile : MonoBehaviour
         direction = shootDirection.normalized;
         accelerationTimer = 0f;
         startPosition = transform.position;
-        if(playerScript.shotCharged == true)
+       /* if(playerScript.shotCharged == true)
         {
             
-        }
+        }*/
     }
 
     private void Update()

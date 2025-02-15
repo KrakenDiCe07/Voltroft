@@ -106,6 +106,7 @@ MonoBehaviour:
   maxSpeed: 40
   accelerationTime: 0.3
   maxDistance: 15
+  playerScript: {fileID: 0}
 --- !u!60 &6325065529789246521
 PolygonCollider2D:
   m_ObjectHideFlags: 0
