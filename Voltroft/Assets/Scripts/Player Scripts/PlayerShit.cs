@@ -31,12 +31,14 @@ public class PlayerShit : MonoBehaviour
     private Coroutine wallJumpCoroutine;
 
     [Header("Shooting")]
-    public GameObject projectilePrefab;
-    public GameObject chargedProjectilePrefab;
-    public Transform firePoint;
+    [SerializeField]private GameObject projectilePrefab;
+    [SerializeField]private GameObject chargedProjectilePrefab;
+    [SerializeField]private Transform firePoint;
     public KeyCode fireKey = KeyCode.K;
-    public float chargeTime = 2;
     public bool shotCharged = false;
+    [SerializeField]private float chargeTime;
+    [SerializeField]private float chargeSpeed;
+    private bool isCharging = false;
 
     [Header("Jump Options")]
     public KeyCode jumpKey = KeyCode.Space;
@@ -145,31 +147,22 @@ public class PlayerShit : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * jumpCutMultiplier);
         }
-
+        if (Input.GetKey(fireKey) && chargeTime < 2)
+            {
+                isCharging = true;
+                if (isCharging == true)
+                {
+                    chargeTime += Time.deltaTime * chargeSpeed;
+                }
+            }
         if (Input.GetKeyDown(fireKey))
         {
             Shoot();
-            shotCharged = false;
-            float time = 0f;
-            while (Input.GetKey(fireKey) && time < chargeTime)
-            {
-                time += Time.deltaTime;
-                if (time >= chargeTime)
-                {
-                    shotCharged = true;
-                }
-            }
-            if (time >= chargeTime)
-            {
-                shotCharged = true;
-            }
+            chargeTime = 0;
         }
-        if (Input.GetKeyUp(fireKey))
+        else if (Input.GetKeyUp(fireKey) && chargeTime >= 2)
         {
-            if (shotCharged == true)
-            {
-                ShootCharged();
-            }
+            ShootCharged();
         }
     }
 
@@ -227,7 +220,7 @@ public class PlayerShit : MonoBehaviour
     }
     private void ShootCharged()
     {
-        GameObject chargedProjectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
+        GameObject chargedProjectile = Instantiate(chargedProjectilePrefab, firePoint.position, Quaternion.identity);
         PlayerProjectile projectileScript = chargedProjectile.GetComponent<PlayerProjectile>();
 
         Vector2 shootDirection = facingDirection == 1 ? Vector2.right : Vector2.left;

@@ -102,9 +102,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abd94c6f32269a34cbd78d0e88a52bf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialSpeed: 8
-  maxSpeed: 40
-  accelerationTime: 0.3
+  initialSpeed: 24
+  maxSpeed: 45
+  accelerationTime: 0.2
   maxDistance: 15
 --- !u!60 &6325065529789246521
 PolygonCollider2D:
@@ -122,7 +122,7 @@ PolygonCollider2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2
