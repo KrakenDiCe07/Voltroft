@@ -1252,7 +1252,7 @@ MonoBehaviour:
   firePoint: {fileID: 199285521}
   fireKey: 106
   shotCharged: 0
-  chargeTime: 0
+  chargeTime: 2
   chargeSpeed: 1
   jumpKey: 32
   jumpForce: 15
