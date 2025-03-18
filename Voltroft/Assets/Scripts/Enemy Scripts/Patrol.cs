@@ -1,15 +1,74 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Callbacks;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Patrol : MonoBehaviour
 {
+    public Rigidbody2D rb;
+    public Transform ledgeDetector;
+    public LayerMask groundLayer, obstacleLayer, playerLayer;
+
+    public float raycastDistance, obstacleDistance, playerDetectDistance;
+    public float speed;
+    public float detectionPauseTime;
+
+    public GameObject alert;
+
+    private bool facingRight = true;
+    private bool playerDetected;
+
+    private void Update()
+    {
+        CheckForObstacles();
+        CheckForPlayer();
+    }
+    void FixedUpdate()
+    {
+        if(facingRight)
+            rb.linearVelocity = new Vector2(speed, rb.linearVelocity.y);
+        else
+            rb.linearVelocity = new Vector2(-speed, rb.linearVelocity.y);
+    }
+    void CheckForObstacles()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(ledgeDetector.position, UnityEngine.Vector2.down, raycastDistance, groundLayer);
+        RaycastHit2D hitObstacle = Physics2D.Raycast(ledgeDetector.position, Vector2.right, obstacleDistance, obstacleLayer);
+
+        if (hit.collider == null || hitObstacle.collider == true)
+            Rotate();
+    }
+    void CheckForPlayer()
+    {
+        RaycastHit2D hitPlayer = Physics2D.Raycast(ledgeDetector.position, facingRight ? Vector2.right : Vector2.left, playerDetectDistance, playerLayer);
+
+        if (hitPlayer.collider == true)
+            StartCoroutine(PlayerDetected());
+    }
+    IEnumerator PlayerDetected()
+    {
+        Debug.Log("Player Detected!");
+        yield return new WaitForSeconds(1);
+    }
+    void Rotate()
+    {
+        transform.Rotate(0, 180, 0);
+    }
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawRay(ledgeDetector.position, (facingRight ? Vector2.right : Vector2.left) * playerDetectDistance);
+    }
+}
+/*{
     [SerializeField] private WayPoints waypoints;
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float distanceThreshold = 0.1f;
 
     private Transform currentWayPoint;
     private Transform previousWayPoint;
+    public GameObject playerDetector;
+    public bool playerDetected = false;
 
     private void Start()
     {
@@ -18,7 +77,10 @@ public class Patrol : MonoBehaviour
 
     private void Update()
     {
-        MoveToWaypoint();
+        if (playerDetected == false)
+        {
+            MoveToWaypoint();
+        }
     }
 
     private void MoveToWaypoint()
@@ -42,9 +104,9 @@ public class Patrol : MonoBehaviour
             currentWayPoint = nextWayPoint;
 
             // Adjust rotation towards the next waypoint
-            Vector3 direction = (currentWayPoint.position - transform.position).normalized;
-            transform.rotation = Quaternion.LookRotation(Vector3.forward, direction);
-        }
+            /*Vector3 direction = (currentWayPoint.position - transform.position).normalized;
+            transform.rotation = Quaternion.LookRotation(Vector3.forward, direction);*/
+        /*}
         else if (nextWayPoint == previousWayPoint)
         {
             // Reverse direction if the only available waypoint is the previous one
@@ -59,4 +121,9 @@ public class Patrol : MonoBehaviour
             moveSpeed = 0f;
         }
     }
-}
+
+    public void CommenceBattle()
+    {
+
+    }
+} */
