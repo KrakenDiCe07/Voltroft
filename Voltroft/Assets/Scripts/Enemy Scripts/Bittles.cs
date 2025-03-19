@@ -4,8 +4,12 @@ using UnityEditor.Callbacks;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class Patrol : MonoBehaviour
+public class Bittles : MonoBehaviour
 {
+    public EnemyBaseState currentState;
+    
+    public PatrolState patrolState;
+    public PlayerDetectedState playerDetectedState;
     public Rigidbody2D rb;
     public Transform ledgeDetector;
     public LayerMask groundLayer, obstacleLayer, playerLayer;
@@ -19,17 +23,32 @@ public class Patrol : MonoBehaviour
     private bool facingRight = true;
     private bool playerDetected;
 
+    private void Awake()
+    {
+        patrolState = new PatrolState(this, "patrol");
+        playerDetectedState = new PlayerDetectedState(this, "playerDetected");
+
+        currentState = patrolState;
+        currentState.Enter();
+    }
     private void Update()
     {
+        currentState.LogicUpdate();
+
         CheckForObstacles();
         CheckForPlayer();
     }
     void FixedUpdate()
     {
-        if(facingRight)
-            rb.linearVelocity = new Vector2(speed, rb.linearVelocity.y);
-        else
-            rb.linearVelocity = new Vector2(-speed, rb.linearVelocity.y);
+        currentState.PhysicsUpdate();
+
+        if (!playerDetected)
+        {
+            if (facingRight)
+                rb.linearVelocity = new Vector2(speed, rb.linearVelocity.y);
+            else
+               rb.linearVelocity = new Vector2(-speed, rb.linearVelocity.y);
+        }
     }
     void CheckForObstacles()
     {
@@ -45,15 +64,25 @@ public class Patrol : MonoBehaviour
 
         if (hitPlayer.collider == true)
             StartCoroutine(PlayerDetected());
+        else if (playerDetected)
+            StartCoroutine(PlayerNOTDetected());
     }
     IEnumerator PlayerDetected()
     {
-        Debug.Log("Player Detected!");
+        playerDetected = true;
+        rb.linearVelocity = Vector2.zero;
+
         yield return new WaitForSeconds(1);
+    }
+    IEnumerator PlayerNOTDetected()
+    {
+        yield return new WaitForSeconds(1);
+        playerDetected = false;
     }
     void Rotate()
     {
         transform.Rotate(0, 180, 0);
+        facingRight = !facingRight;
     }
     private void OnDrawGizmos()
     {
