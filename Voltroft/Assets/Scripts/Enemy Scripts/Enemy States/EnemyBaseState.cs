@@ -17,6 +17,7 @@ public class EnemyBaseState
     {
         Debug.Log("Entered: " + animationName);
     }
+    public virtual void Exit() { }
     public virtual void LogicUpdate() { }
     public virtual void PhysicsUpdate() { }
 }

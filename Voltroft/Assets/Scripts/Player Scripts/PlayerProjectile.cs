@@ -50,14 +50,12 @@ public class PlayerProjectile : MonoBehaviour
         if(other.gameObject.CompareTag("Ground"))
         {
             Destroy(gameObject);
-            playerScript.shotCharged = false;
             initialSpeed -= 3;
             maxSpeed -= 5;
         }
         if(other.gameObject.CompareTag("BreakableGround"))
         {
             Destroy(other.gameObject);
-            playerScript.shotCharged = false;
             Destroy(gameObject);
             initialSpeed -= 3;
             maxSpeed -= 5;

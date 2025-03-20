@@ -6,6 +6,9 @@ using UnityEngine.UIElements;
 
 public class Bittles : MonoBehaviour
 {
+    
+    #region Variables
+
     public EnemyBaseState currentState;
     
     public PatrolState patrolState;
@@ -20,9 +23,14 @@ public class Bittles : MonoBehaviour
 
     public GameObject alert;
 
-    private bool facingRight = true;
-    private bool playerDetected;
+    public bool facingRight = true;
 
+    #endregion
+    
+
+
+    #region Unity Callbacks
+    
     private void Awake()
     {
         patrolState = new PatrolState(this, "patrol");
@@ -34,61 +42,64 @@ public class Bittles : MonoBehaviour
     private void Update()
     {
         currentState.LogicUpdate();
-
-        CheckForObstacles();
-        CheckForPlayer();
     }
     void FixedUpdate()
     {
         currentState.PhysicsUpdate();
-
-        if (!playerDetected)
-        {
-            if (facingRight)
-                rb.linearVelocity = new Vector2(speed, rb.linearVelocity.y);
-            else
-               rb.linearVelocity = new Vector2(-speed, rb.linearVelocity.y);
-        }
     }
-    void CheckForObstacles()
+
+    #endregion
+
+
+
+    #region Checks
+    public bool CheckForObstacles()
     {
         RaycastHit2D hit = Physics2D.Raycast(ledgeDetector.position, UnityEngine.Vector2.down, raycastDistance, groundLayer);
         RaycastHit2D hitObstacle = Physics2D.Raycast(ledgeDetector.position, Vector2.right, obstacleDistance, obstacleLayer);
 
         if (hit.collider == null || hitObstacle.collider == true)
-            Rotate();
+            return true;
+        else
+            return false;
     }
-    void CheckForPlayer()
+    public bool CheckForPlayer()
     {
         RaycastHit2D hitPlayer = Physics2D.Raycast(ledgeDetector.position, facingRight ? Vector2.right : Vector2.left, playerDetectDistance, playerLayer);
 
         if (hitPlayer.collider == true)
-            StartCoroutine(PlayerDetected());
-        else if (playerDetected)
-            StartCoroutine(PlayerNOTDetected());
+            return true;
+        else
+            return false;
     }
-    IEnumerator PlayerDetected()
-    {
-        playerDetected = true;
-        rb.linearVelocity = Vector2.zero;
 
-        yield return new WaitForSeconds(1);
-    }
-    IEnumerator PlayerNOTDetected()
+    #endregion
+
+
+
+    #region Other Functions
+
+    public void SwitchState(EnemyBaseState newState)
     {
-        yield return new WaitForSeconds(1);
-        playerDetected = false;
-    }
-    void Rotate()
-    {
-        transform.Rotate(0, 180, 0);
-        facingRight = !facingRight;
+        currentState.Exit();
+        currentState = newState;
+        currentState.Enter();
+
     }
     private void OnDrawGizmos()
     {
         Gizmos.DrawRay(ledgeDetector.position, (facingRight ? Vector2.right : Vector2.left) * playerDetectDistance);
     }
+
+    #endregion
+
+
 }
+
+
+#region Backup Code
+
+
 /*{
     [SerializeField] private WayPoints waypoints;
     [SerializeField] private float moveSpeed = 5f;
@@ -156,3 +167,6 @@ public class Bittles : MonoBehaviour
 
     }
 } */
+
+
+#endregion

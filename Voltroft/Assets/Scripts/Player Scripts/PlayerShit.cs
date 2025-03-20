@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerShit : MonoBehaviour
 {
+    #region Variables
     public float moveSpeed;
     public float wallSlideSpeed;
     public float wallDetachJumpGracePeriod;
@@ -24,8 +25,6 @@ public class PlayerShit : MonoBehaviour
     private bool isWallJumping;
     private bool isWallSliding;
     private bool isJumping;
-    private float wallJumpTimer;
-    private float wallDetachTimer;
     private bool recentlyDetachedFromWall;
     private Coroutine jumpCoroutine;
     private Coroutine wallJumpCoroutine;
@@ -57,7 +56,8 @@ public class PlayerShit : MonoBehaviour
     private bool isDashing = false;
     private bool canDash = true;
     private float dashTime;
-
+    
+    #endregion
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();

@@ -119,6 +119,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &20990686
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 20990687}
+  m_Layer: 0
+  m_Name: PlaceHolder Alert
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &20990687
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 20990686}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -1, z: -0, w: 0}
+  m_LocalPosition: {x: 0, y: 8.32, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 136357318}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &51812176
 GameObject:
   m_ObjectHideFlags: 0
@@ -310,7 +341,7 @@ Rigidbody2D:
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 5964be1bcff64474ea3257287fe9aca0, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -2146,6 +2177,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 136357321}
     - target: {fileID: 626535105010776233, guid: b6d2ed8355c3a574aa28205bfaca392d, type: 3}
+      propertyPath: alert
+      value: 
+      objectReference: {fileID: 20990686}
+    - target: {fileID: 626535105010776233, guid: b6d2ed8355c3a574aa28205bfaca392d, type: 3}
       propertyPath: speed
       value: 3
       objectReference: {fileID: 0}
@@ -2321,7 +2356,10 @@ PrefabInstance:
     - {fileID: 335508065292417277, guid: b6d2ed8355c3a574aa28205bfaca392d, type: 3}
     m_RemovedGameObjects:
     - {fileID: 4782525468153741128, guid: b6d2ed8355c3a574aa28205bfaca392d, type: 3}
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1345914350158645591, guid: b6d2ed8355c3a574aa28205bfaca392d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 20990687}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 6965588794412001991, guid: b6d2ed8355c3a574aa28205bfaca392d, type: 3}
       insertIndex: -1
