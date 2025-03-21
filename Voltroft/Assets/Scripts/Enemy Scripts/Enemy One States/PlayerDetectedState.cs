@@ -24,6 +24,11 @@ public class PlayerDetectedState : EnemyBaseState
 
         if (!bittles.CheckForPlayer())
             bittles.SwitchState(bittles.patrolState);
+        else
+        {
+            if(Time.time >= bittles.stateTime + bittles.playerDetectedWaitTime)
+                bittles.SwitchState(bittles.jumpAttackState);
+        }
     }
     public override void PhysicsUpdate()
     {

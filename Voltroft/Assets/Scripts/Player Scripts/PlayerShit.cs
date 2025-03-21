@@ -16,6 +16,7 @@ public class PlayerShit : MonoBehaviour
     public Transform leftWallCheck;
     public Transform rightWallCheck;
     public Vector2 wallCheckSize = new Vector2(0.1f, 1f);
+    public GameObject Wranshee;
 
     private Rigidbody2D rb;
     private int facingDirection = 1;
@@ -61,6 +62,7 @@ public class PlayerShit : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        Invoke("BAH", 2f);
     }
 
     private void Update()

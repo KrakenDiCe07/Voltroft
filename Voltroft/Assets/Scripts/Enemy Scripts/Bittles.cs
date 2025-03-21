@@ -9,10 +9,10 @@ public class Bittles : MonoBehaviour
     
     #region Variables
 
-    public EnemyBaseState currentState;
-    
+    public EnemyBaseState currentState; 
     public PatrolState patrolState;
     public PlayerDetectedState playerDetectedState;
+    public JumpAttack jumpAttackState;
     public Rigidbody2D rb;
     public Transform ledgeDetector;
     public LayerMask groundLayer, obstacleLayer, playerLayer;
@@ -20,6 +20,10 @@ public class Bittles : MonoBehaviour
     public float raycastDistance, obstacleDistance, playerDetectDistance;
     public float speed;
     public float detectionPauseTime;
+    public float stateTime;
+    public float playerDetectedWaitTime = 1;
+    public float jumpAttackTime;
+    public float jumpAttackSpeed;
 
     public GameObject alert;
 
@@ -35,6 +39,7 @@ public class Bittles : MonoBehaviour
     {
         patrolState = new PatrolState(this, "patrol");
         playerDetectedState = new PlayerDetectedState(this, "playerDetected");
+        jumpAttackState = new JumpAttack(this, "jumpAttack");
 
         currentState = patrolState;
         currentState.Enter();
@@ -84,10 +89,12 @@ public class Bittles : MonoBehaviour
         currentState.Exit();
         currentState = newState;
         currentState.Enter();
+        stateTime = Time.time;
 
     }
     private void OnDrawGizmos()
-    {
+    { 
+        
         Gizmos.DrawRay(ledgeDetector.position, (facingRight ? Vector2.right : Vector2.left) * playerDetectDistance);
     }
 
