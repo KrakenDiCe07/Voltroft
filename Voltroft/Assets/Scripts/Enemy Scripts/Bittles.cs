@@ -13,21 +13,25 @@ public class Bittles : MonoBehaviour
     public PatrolState patrolState;
     public PlayerDetectedState playerDetectedState;
     public JumpAttack jumpAttackState;
+    public ChargeState chargeState;
     public Rigidbody2D rb;
     public Transform ledgeDetector;
+    public Transform jumpAttackDetector;
     public LayerMask groundLayer, obstacleLayer, playerLayer;
 
-    public float raycastDistance, obstacleDistance, playerDetectDistance;
+    public float raycastDistance, obstacleDistance, playerDetectDistance, jumpAttackDistance;
     public float speed;
     public float detectionPauseTime;
     public float stateTime;
     public float playerDetectedWaitTime = 1;
+    public float chargeTime;
+    public float chargeSpeed;
     public float jumpAttackTime;
     public float jumpAttackSpeed;
 
     public GameObject alert;
 
-    public bool facingRight = true;
+    public int facingDirection = 1;
 
     #endregion
     
@@ -39,6 +43,7 @@ public class Bittles : MonoBehaviour
     {
         patrolState = new PatrolState(this, "patrol");
         playerDetectedState = new PlayerDetectedState(this, "playerDetected");
+        chargeState = new ChargeState(this, "charge");
         jumpAttackState = new JumpAttack(this, "jumpAttack");
 
         currentState = patrolState;
@@ -70,7 +75,7 @@ public class Bittles : MonoBehaviour
     }
     public bool CheckForPlayer()
     {
-        RaycastHit2D hitPlayer = Physics2D.Raycast(ledgeDetector.position, facingRight ? Vector2.right : Vector2.left, playerDetectDistance, playerLayer);
+        RaycastHit2D hitPlayer = Physics2D.Raycast(ledgeDetector.position, facingDirection == 1? Vector2.right : Vector2.left, playerDetectDistance, playerLayer);
 
         if (hitPlayer.collider == true)
             return true;
@@ -94,8 +99,10 @@ public class Bittles : MonoBehaviour
     }
     private void OnDrawGizmos()
     { 
-        
-        Gizmos.DrawRay(ledgeDetector.position, (facingRight ? Vector2.right : Vector2.left) * playerDetectDistance);
+        Gizmos.DrawRay(ledgeDetector.position, (facingDirection == 1 ? Vector2.right : Vector2.left) * playerDetectDistance);
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(jumpAttackDetector.position, (facingDirection == 1 ? Vector2.right : Vector2.left) * jumpAttackDistance);
+        Gizmos.color = Color.white;
     }
 
     #endregion

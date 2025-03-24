@@ -2022,6 +2022,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6297222573670685684, guid: b6d2ed8355c3a574aa28205bfaca392d, type: 3}
   m_PrefabInstance: {fileID: 5487078941613362374}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1620816751
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1620816752}
+  m_Layer: 0
+  m_Name: JumpAttackDetector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1620816752
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1620816751}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -7.9, y: 0, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 136357318}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1910185143
 GameObject:
   m_ObjectHideFlags: 0
@@ -2465,6 +2496,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1345914350158645591, guid: b6d2ed8355c3a574aa28205bfaca392d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 20990687}
+    - targetCorrespondingSourceObject: {fileID: 1345914350158645591, guid: b6d2ed8355c3a574aa28205bfaca392d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1620816752}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 6965588794412001991, guid: b6d2ed8355c3a574aa28205bfaca392d, type: 3}
       insertIndex: -1

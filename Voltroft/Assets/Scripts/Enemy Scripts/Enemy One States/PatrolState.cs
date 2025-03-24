@@ -25,7 +25,7 @@ public class PatrolState : EnemyBaseState
     {
         base.PhysicsUpdate();
 
-        if (bittles.facingRight)
+        if (bittles.facingDirection == 1)
             bittles.rb.linearVelocity = new Vector2(bittles.speed, bittles.rb.linearVelocity.y);
         else
             bittles.rb.linearVelocity = new Vector2(-bittles.speed, bittles.rb.linearVelocity.y);
@@ -33,6 +33,6 @@ public class PatrolState : EnemyBaseState
     void Rotate()
     {
         bittles.transform.Rotate(0, 180, 0);
-        bittles.facingRight = !bittles.facingRight;
+        bittles.facingDirection = -bittles.facingDirection;
     }
 }

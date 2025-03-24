@@ -22,6 +22,8 @@ public class JumpAttack : EnemyBaseState
     public override void PhysicsUpdate()
     {
         base.PhysicsUpdate();
+
+        
     }
 
 }
