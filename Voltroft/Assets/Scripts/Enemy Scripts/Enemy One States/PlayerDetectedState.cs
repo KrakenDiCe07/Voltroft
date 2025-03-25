@@ -26,7 +26,9 @@ public class PlayerDetectedState : EnemyBaseState
             bittles.SwitchState(bittles.patrolState);
         else
         {
-            if(Time.time >= bittles.stateTime + bittles.playerDetectedWaitTime)
+            if (bittles.CheckForJumpAttack())
+                bittles.SwitchState(bittles.jumpAttackState);
+            else if (Time.time >= bittles.stateTime + bittles.playerDetectedWaitTime)
                 bittles.SwitchState(bittles.chargeState);
         }
     }

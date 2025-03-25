@@ -27,6 +27,7 @@ public class Bittles : MonoBehaviour
     public float chargeTime;
     public float chargeSpeed;
     public float jumpAttackTime;
+    public float jumpAttackWaitTime = 0.5f;
     public float jumpAttackSpeed;
 
     public GameObject alert;
@@ -72,6 +73,11 @@ public class Bittles : MonoBehaviour
             return true;
         else
             return false;
+    }
+    public bool CheckForJumpAttack()
+    {
+        RaycastHit2D hitJump = Physics2D.Raycast(jumpAttackDetector.position, facingDirection == 1 ? Vector2.right : Vector2.left, jumpAttackDistance, playerLayer);
+        return hitJump.collider != null;
     }
     public bool CheckForPlayer()
     {
